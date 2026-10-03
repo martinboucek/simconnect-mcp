@@ -76,6 +76,7 @@ from simconnect_mcp.tools.pmdg import (  # noqa: E402
     get_pmdg_var,
     send_pmdg_event,
 )
+from simconnect_mcp.tools.simtime import set_sim_time  # noqa: E402
 from simconnect_mcp.tools.simvars import (  # noqa: E402
     get_simvar,
     get_simvar_bulk,
@@ -164,6 +165,9 @@ _register(get_facility_info, "msfs_get_facility_info", "Get Facility Info",
 _register(send_sim_text, "msfs_send_sim_text", "Show Text In Sim",
           read_only=False, destructive=False)
 _register(set_aircraft_position, "msfs_set_aircraft_position", "Reposition Aircraft",
+          read_only=False, idempotent=True)
+# Local addition, not in upstream: see docs/simconnect-mcp.md in the parent repo.
+_register(set_sim_time, "msfs_set_sim_time", "Set Simulator Time",
           read_only=False, idempotent=True)
 
 # --- PMDG ---

@@ -60,6 +60,7 @@ WRITE_TOOLS = {
     "msfs_trigger_custom_event",
     "msfs_send_pmdg_event",
     "msfs_set_aircraft_position",
+    "msfs_set_sim_time",
     "msfs_load_flight",
     # load_flight_plan is deliberately here, not alongside msfs_save_flight
     # below: it has no overwrite-style guard, so it stays at the
@@ -79,7 +80,8 @@ async def test_every_tool_is_msfs_prefixed():
 
 
 async def test_expected_tool_count():
-    assert len(await _tools()) == 32
+    # 32 upstream tools + the local msfs_set_sim_time
+    assert len(await _tools()) == 33
 
 
 async def test_phase_two_tools_are_registered():
