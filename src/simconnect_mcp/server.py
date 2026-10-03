@@ -67,6 +67,7 @@ from simconnect_mcp.tools.utilities import (  # noqa: E402
     send_sim_text,
     set_aircraft_position,
 )
+from simconnect_mcp.tools.simtime import set_sim_time  # noqa: E402
 from simconnect_mcp.tools.pmdg import (  # noqa: E402
     get_pmdg_var,
     get_pmdg_cdu,
@@ -116,7 +117,7 @@ for tool_fn in [
     search_lvars, list_lvar_panels, list_lvar_catalogs,
     get_aircraft_state, get_aircraft_position, get_aircraft_systems,
     get_nearby_airports, get_facility_info,
-    send_sim_text, set_aircraft_position,
+    send_sim_text, set_aircraft_position, set_sim_time,
     get_pmdg_var, get_pmdg_cdu, send_pmdg_event,
 ]:
     mcp.tool()(tool_fn)
