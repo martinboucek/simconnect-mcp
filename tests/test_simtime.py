@@ -78,8 +78,16 @@ async def test_verified_when_read_back_matches(clock):
 async def test_optional_date_sent_first(clock):
     await set_sim_time(12, 0, local=False, day_of_year=300, year=2026)
     assert _sent_events(clock) == [
-        "ZULU_YEARS_SET", "ZULU_DAYS_SET", "ZULU_HOURS_SET", "ZULU_MINUTES_SET",
+        "ZULU_YEAR_SET", "ZULU_DAY_SET", "ZULU_HOURS_SET", "ZULU_MINUTES_SET",
     ]
+
+
+async def test_wrong_day_read_back_is_not_verified(clock):
+    clock["simvar_values"]["ZULU_TIME"] = 12 * 3600.0
+    result = await set_sim_time(12, 0, local=False, day_of_year=300)
+    # The mocked sim still reads day 276, so the date change is flagged.
+    assert result.verified is False
+    assert "day 276" in result.warning
 
 
 async def test_midnight_crossing_warns(clock):

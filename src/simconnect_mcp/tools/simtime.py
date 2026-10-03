@@ -103,8 +103,8 @@ async def set_sim_time(
 
     CZ: nastavit čas v simulátoru, hodina, minuta, místní čas, zulu, soumrak, den, noc.
 
-    Sends ZULU_HOURS_SET / ZULU_MINUTES_SET (and optionally ZULU_DAYS_SET /
-    ZULU_YEARS_SET), then reads the clock back and reports whether it matches.
+    Sends ZULU_HOURS_SET / ZULU_MINUTES_SET (and optionally ZULU_DAY_SET /
+    ZULU_YEAR_SET), then reads the clock back and reports whether it matches.
     Not meant for use in flight.
     """
     manager = SimConnectManager()
@@ -137,9 +137,10 @@ async def set_sim_time(
     # Larger units first: setting the day or year can reset the clock.
     steps: list[tuple[str, int]] = []
     if year is not None:
-        steps.append(("ZULU_YEARS_SET", year))
+        steps.append(("ZULU_YEAR_SET", year))
     if day_of_year is not None:
-        steps.append(("ZULU_DAYS_SET", day_of_year))
+        # Takes the day of the YEAR (verified live), not the day of the month.
+        steps.append(("ZULU_DAY_SET", day_of_year))
     steps.append(("ZULU_HOURS_SET", target["zulu_hour"]))
     steps.append(("ZULU_MINUTES_SET", target["zulu_minute"]))
 
@@ -159,6 +160,11 @@ async def set_sim_time(
         warnings.append(
             f"Sent {sent_zulu}Z but the sim reads {read_zulu or 'nothing'}Z. The sim may "
             "have ignored the event, or real-time weather/time sync overrode it."
+        )
+    if day_of_year is not None and after["doy"] is not None and int(after["doy"]) != day_of_year:
+        verified = False
+        warnings.append(
+            f"Asked for day {day_of_year} but the sim reads day {int(after['doy'])}."
         )
     if target["day_shift"] and day_of_year is None:
         warnings.append(
