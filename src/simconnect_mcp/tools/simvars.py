@@ -178,6 +178,18 @@ def _fuzzy_suggest(name: str) -> list[str]:
     return suggestions
 
 
+def _read_via_rpn(manager, key: str, unit: str | None):
+    """Read a SimVar through the MobiFlight WASM bridge.
+
+    AircraftRequests only knows the variables in its own catalog. Anything
+    outside it — TRANSPONDER CODE, for one — is still reachable as RPN, which
+    the bridge evaluates inside the sim.
+    """
+    if not manager.mobiflight_available:
+        return None
+    return manager.mobiflight.get(f"(A:{key}, {unit or 'number'})")
+
+
 @handle_simconnect_errors
 @require_connection
 async def get_simvar(name: str, unit: str | None = None, index: int | None = None) -> dict:
@@ -207,13 +219,11 @@ async def get_simvar(name: str, unit: str | None = None, index: int | None = Non
         except Exception:
             pass
 
-        # Fallback: direct SimConnect data request
-        from SimConnect.Constants import DATATYPE_FLOAT64
-        req_name = key.replace(":", "_")
-        manager.sm.add_to_data_definition(
-            manager.sm.new_data_definition(), key, None, DATATYPE_FLOAT64
-        )
-        return None
+        # Fallback: the MobiFlight WASM bridge. The previous implementation
+        # imported DATATYPE_FLOAT64 from SimConnect.Constants, which has never
+        # existed there — every read that missed the AircraftRequests catalog
+        # died on ImportError instead of falling back.
+        return _read_via_rpn(manager, key, unit)
 
     value = await manager.run_sync(_read)
 
@@ -297,6 +307,8 @@ async def get_simvar_bulk(variables: list[dict]) -> dict:
             key = f"{var_name}:{idx}" if idx else var_name
             try:
                 val = manager.aq.get(key)
+                if val is None:
+                    val = _read_via_rpn(manager, key, var.get("unit"))
                 out[var_name] = {"value": val, "unit": var.get("unit", "default")}
             except Exception as e:
                 out[var_name] = {"error": str(e)}

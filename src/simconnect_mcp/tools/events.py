@@ -201,10 +201,12 @@ async def trigger_custom_event(name: str, parameter: int | None = None) -> dict:
         }
 
     def _fire() -> None:
+        # The MobiFlight bridge has no trigger_event(); its only write path is
+        # set(), which forwards an RPN expression to the WASM module.
         if parameter is not None:
-            manager.mobiflight.trigger_event(name, parameter)
+            manager.mobiflight.set(f"{parameter} (>K:{name})")
         else:
-            manager.mobiflight.trigger_event(name)
+            manager.mobiflight.set(f"(>K:{name})")
 
     await manager.run_sync(_fire)
     return {
