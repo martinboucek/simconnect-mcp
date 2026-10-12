@@ -71,6 +71,7 @@ from simconnect_mcp.tools.lvars import (  # noqa: E402
     search_lvars,
     set_lvar,
 )
+from simconnect_mcp.tools.parking import get_parking_spots  # noqa: E402
 from simconnect_mcp.tools.pmdg import (  # noqa: E402
     get_pmdg_cdu,
     get_pmdg_var,
@@ -159,6 +160,9 @@ _register(get_aircraft_snapshot, "msfs_get_aircraft_snapshot", "Get Aircraft Sna
 _register(get_nearby_airports, "msfs_get_nearby_airports", "Get Nearby Airports",
           read_only=True, idempotent=True)
 _register(get_facility_info, "msfs_get_facility_info", "Get Facility Info",
+          read_only=True, idempotent=True)
+# Local addition, not in upstream: see docs/simconnect-mcp.md in the parent repo.
+_register(get_parking_spots, "msfs_get_parking_spots", "Get Airport Parking Spots",
           read_only=True, idempotent=True)
 
 # --- Utilities ---

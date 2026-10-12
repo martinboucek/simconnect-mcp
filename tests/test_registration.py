@@ -80,8 +80,8 @@ async def test_every_tool_is_msfs_prefixed():
 
 
 async def test_expected_tool_count():
-    # 32 upstream tools + the local msfs_set_sim_time
-    assert len(await _tools()) == 33
+    # 32 upstream tools + the local msfs_set_sim_time and msfs_get_parking_spots
+    assert len(await _tools()) == 34
 
 
 async def test_phase_two_tools_are_registered():
